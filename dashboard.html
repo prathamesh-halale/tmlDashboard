@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chassis Dispatch Control Tower</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+:root{--nav:#083b66;--nav-raised:#0b5a91;--blue:#0b6fb8;--cyan:#1aa7c8;--green:#16845b;--amber:#a66b00;--red:#c33e3e;--ink:#142334;--muted:#637386;--bg:#eef3f8;--card:#fff;--line:#dce5ee;--surface-soft:#f5f8fb;--surface-blue:#e9f3fa;--shadow:0 8px 24px rgba(8,59,102,.08);--radius-sm:8px;--radius-md:12px;--radius-lg:16px;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--focus:0 0 0 3px rgba(11,111,184,.24)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px}button,input,select{font:inherit}button{color:inherit}.app{min-height:100vh;display:grid;grid-template-columns:260px minmax(0,1fr)}.side{background:linear-gradient(155deg,var(--nav),#052940);color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh;overflow:auto}.brand{display:flex;gap:12px;align-items:center;padding:4px 8px 22px}.logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#2fb9df,#0c76bd);font-weight:900}.brand b{display:block;font-size:14px}.brand span{font-size:11px;opacity:.78}.upload{display:grid;justify-items:center;gap:5px;border:1px dashed rgba(255,255,255,.42);border-radius:14px;padding:16px;text-align:center;background:rgba(255,255,255,.07);cursor:pointer;transition:background .15s,transform .15s}.upload:hover{background:rgba(255,255,255,.12);transform:translateY(-1px)}.upload:focus-within{outline:none;box-shadow:var(--focus)}.upload b{font-size:13px}.upload small{font-size:11px;color:#d9e9f6;opacity:.82}.upload input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.upload-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.12);margin-bottom:4px}.upload-icon svg{width:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.saved-state{display:flex;align-items:flex-start;gap:8px;padding:12px 8px 4px;color:#d4e3ee;font-size:11px;line-height:1.4}.saved-dot{width:7px;height:7px;border-radius:50%;background:#8da0b2;flex:none;margin-top:3px}.saved-state.saved .saved-dot{background:#69d5a0}.saved-state.warning .saved-dot{background:#f5bc56}.clear-saved{margin:4px 8px 0;padding:4px 0;border:0;background:none;color:#bdd5e7;font-size:11px;text-decoration:underline;cursor:pointer}.clear-saved:hover{color:#fff}.clear-saved:focus-visible,.nav button:focus-visible,.btn:focus-visible,.sheet-list button:focus-visible{outline:none;box-shadow:var(--focus)}.nav{margin-top:20px;display:grid;gap:6px}.nav button{display:flex;align-items:center;gap:11px;border:0;color:#d7e9f7;background:transparent;text-align:left;padding:11px 12px;border-radius:9px;cursor:pointer;font-size:13px;transition:background .15s,color .15s}.nav button svg,.mobile svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;flex:none}.nav button:hover,.nav button.active{color:#fff;background:rgba(255,255,255,.14)}.side-foot{font-size:11px;line-height:1.5;color:#d4e3ee;opacity:.75;margin-top:25px;padding:8px}.main{min-width:0}.top{min-height:72px;background:#fff;border-bottom:1px solid var(--line);padding:10px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:5}.title h1{font-size:20px;margin:0;font-weight:700}.title p{font-size:12px;color:var(--muted);margin:4px 0 0}.actions{display:flex;gap:9px;align-items:center}.file-name{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hint{font-size:11px;color:var(--muted)}.btn{border:1px solid var(--line);background:#fff;padding:9px 12px;border-radius:9px;cursor:pointer;font-weight:600;font-size:12px;transition:background .15s,border-color .15s,color .15s}.btn:hover{background:var(--surface-soft);border-color:#b8c8d8}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.primary:hover{background:var(--nav-raised)}.btn.subtle{background:var(--surface-soft)}.content{padding:22px 26px 40px;max-width:1680px;margin:0 auto}.notice{background:#fff4d9;border:1px solid #e8ca78;border-radius:12px;padding:12px 14px;margin-bottom:16px;color:#705000;font-size:13px;line-height:1.5}.notice.good{background:#eaf8f1;border-color:#a6d7bc;color:#176b43}.notice.bad{background:#fff0f0;border-color:#e6adad;color:#932d2d}.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(5,minmax(145px,1fr))}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}.kpi{padding:17px 18px;position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;right:-20px;bottom:-28px;width:75px;height:75px;border-radius:50%;background:var(--tone,var(--blue));opacity:.08}.kpi .label{font-size:11px;letter-spacing:.045em;font-weight:700;color:var(--muted)}.kpi .value{font-size:29px;font-weight:750;margin-top:8px;font-variant-numeric:tabular-nums}.kpi .sub{font-size:11px;color:var(--muted);margin-top:4px}.kpi .bar{height:4px;background:#e8edf2;border-radius:5px;margin-top:12px;overflow:hidden}.kpi .bar i{display:block;height:100%;width:0;background:var(--tone,var(--blue))}.row2{grid-template-columns:minmax(0,1.55fr) minmax(300px,.75fr);margin-top:16px}.row3{grid-template-columns:1fr 1fr;margin-top:16px}.panel{padding:18px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.panel h2{font-size:15px;margin:3px 0 0}.panel .hint{font-size:11px;color:var(--muted)}.eyebrow{font-size:10px;letter-spacing:.09em;font-weight:750;color:var(--muted)}.chart{height:320px;position:relative}.chart.small{height:270px}.chart canvas{width:100%;height:100%;display:block}.gauge-wrap{height:210px;display:grid;place-items:center}.gauge{width:190px;height:95px;overflow:hidden;position:relative}.gauge-ring{width:190px;height:190px;border-radius:50%;background:conic-gradient(from 270deg,var(--green) 0 var(--pct),#e8edf2 var(--pct) 50%,transparent 50% 100%);position:absolute}.gauge-ring:after{content:"";position:absolute;inset:25px;background:#fff;border-radius:50%}.gauge-val{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:32px;font-weight:800;font-variant-numeric:tabular-nums}.gauge-caption{text-align:center;color:var(--muted);font-size:12px;margin-top:-8px}.health-list{display:grid;gap:8px;margin-top:12px}.health{display:grid;grid-template-columns:9px 1fr auto;gap:9px;align-items:center;font-size:12px;padding:9px 10px;background:var(--surface-soft);border-radius:9px;line-height:1.4}.dot{width:9px;height:9px;border-radius:50%}.tab{display:none}.tab.active{display:block}.tab-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin:4px 0 18px}.tab-intro h2{font-size:24px;line-height:1.2;margin:5px 0 6px}.tab-intro p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.result-count{color:var(--muted);font-size:12px;font-weight:650;white-space:nowrap}.mini-kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.mini-kpi{padding:14px 16px}.mini-kpi .label{font-size:10px;letter-spacing:.06em;font-weight:750;color:var(--muted)}.mini-kpi .value{font-size:22px;font-weight:750;margin-top:7px;font-variant-numeric:tabular-nums}.mini-kpi .detail{font-size:11px;color:var(--muted);margin-top:3px}.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}.filter-bar{padding:12px;background:var(--surface-soft);border:1px solid var(--line);border-radius:12px}.field{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);padding:8px 10px;border-radius:9px;min-height:40px}.field:focus-within{border-color:var(--blue);box-shadow:var(--focus)}.field label{font-size:11px;color:var(--muted);font-weight:650;white-space:nowrap}.field select,.field input{border:0;outline:0;background:transparent;min-width:115px;color:var(--ink);font-size:12px}.search-field{flex:1;min-width:220px}.search-field input{flex:1;min-width:100px}.table-card{overflow:hidden}.table-summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 16px;border-bottom:1px solid var(--line)}.table-summary>div{display:grid;gap:3px}.table-summary b{font-size:13px}.table-summary span{font-size:11px;color:var(--muted)}.sort-control{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px}.sort-control select{border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);padding:7px 8px}.table-scroll{max-height:540px;overflow:auto}.data{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}.data th{position:sticky;top:0;background:#edf4f9;color:#34495b;z-index:1;text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:10px;letter-spacing:.045em;text-transform:uppercase}.data td{padding:10px 12px;border-bottom:1px solid #edf1f4;white-space:nowrap;font-variant-numeric:tabular-nums}.data td:first-child,.data th:first-child{padding-left:16px}.data tr:hover td{background:#f7fbfe}.data .num{text-align:right}.performance-table{min-width:940px}.pill{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-weight:700;font-size:10px;line-height:1.2;white-space:nowrap}.pill.red{background:#ffe8e8;color:#ad3030}.pill.amber{background:#fff2d8;color:#805800}.pill.green{background:#e5f7ee;color:#167148}.pill.blue{background:var(--surface-blue);color:var(--nav-raised)}.achievement-cell{display:flex;align-items:center;gap:8px}.achievement-track{width:56px;height:5px;border-radius:5px;background:#e8edf2;overflow:hidden;flex:none}.achievement-track i{display:block;height:100%;background:var(--blue)}.empty{min-height:180px;display:grid;place-items:center;text-align:center;color:var(--muted);padding:30px}.risk-summary{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.risk-metric{padding:16px}.risk-metric .label{font-size:10px;letter-spacing:.07em;font-weight:750;color:var(--muted)}.risk-metric .value{font-size:24px;font-weight:750;margin-top:8px;font-variant-numeric:tabular-nums}.risk-metric .detail{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.risk-layout{grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr);align-items:start}.risk-list{display:grid;gap:0}.risk-row{display:grid;grid-template-columns:32px minmax(110px,1fr) minmax(130px,1.2fr) 76px 90px;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line)}.risk-row:first-child{border-top:0}.risk-rank{font-size:11px;font-weight:750;color:var(--muted)}.risk-family{min-width:0}.risk-family b{display:block;font-size:12px;white-space:normal}.risk-family small{display:block;font-size:10px;color:var(--muted);margin-top:3px}.risk-bar{height:7px;background:#edf1f4;border-radius:7px;overflow:hidden}.risk-bar i{height:100%;display:block;background:var(--red);border-radius:inherit}.risk-units{text-align:right;font-size:16px;font-weight:750;font-variant-numeric:tabular-nums}.risk-share{text-align:right;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}.risk-side{gap:16px}.risk-chart{height:230px}.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px}.legend-item{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:10px}.legend-dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}.sheet-grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:16px;align-items:start}.sheet-nav-card{overflow:hidden}.sheet-nav-head{display:flex;justify-content:space-between;align-items:center;padding:14px 14px 10px;border-bottom:1px solid var(--line);font-size:12px}.sheet-list{padding:8px;max-height:620px;overflow:auto}.sheet-list button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;background:transparent;border:0;border-radius:8px;padding:10px;cursor:pointer;color:#34495b;font-size:11px}.sheet-list button:hover,.sheet-list button.active{background:var(--surface-blue);color:var(--nav-raised)}.sheet-list button.active{font-weight:700}.sheet-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sheet-rows{color:var(--muted);font-size:10px;flex:none}.sheet-detail{min-width:0}.sheet-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;margin-bottom:12px}.sheet-heading h2{margin:4px 0;font-size:17px;overflow-wrap:anywhere}.sheet-heading p{margin:0;color:var(--muted);font-size:11px}.sheet-pill{padding:5px 8px;background:var(--surface-blue);border-radius:99px;color:var(--nav-raised);font-size:10px;white-space:nowrap}.explorer-toolbar{margin-bottom:12px}.explorer-table-card .table-scroll{max-height:580px}.sheet-data{min-width:max-content}.sheet-data th:first-child,.sheet-data td:first-child{position:sticky;left:0;z-index:2;background:#f1f5f8;color:var(--muted);text-align:right;min-width:48px}.sheet-data thead th:first-child{z-index:3}.sheet-data th:not(:first-child){min-width:110px}.sheet-data td{min-width:110px;max-width:320px;overflow:hidden;text-overflow:ellipsis}.sheet-data tr:hover td:first-child{background:#e7eef4}.mobile{display:none}.spinner{display:none;width:20px;height:20px;border:3px solid #cce0ef;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:1100px){.app{grid-template-columns:1fr}.side{position:fixed;left:-280px;z-index:10;width:260px;transition:transform .2s;transform:translateX(0)}.side.open{left:0}.mobile{display:inline-flex;align-items:center;justify-content:center}.risk-layout{grid-template-columns:1fr}.risk-side{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.content{padding:16px 14px 32px}.top{padding:10px 14px;gap:9px}.title{min-width:0;flex:1}.title h1{font-size:17px}.title p{max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.actions{gap:6px}.actions .file-name{display:none}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.row2,.row3{grid-template-columns:1fr}.risk-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.mini-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.sheet-grid{grid-template-columns:1fr}.sheet-list{display:flex;gap:6px;max-height:none;overflow:auto;white-space:nowrap}.sheet-list button{width:auto;flex:none}.sheet-nav-head{padding-bottom:8px}.sheet-heading{margin-top:0}.risk-side{grid-template-columns:1fr}.tab-intro{align-items:flex-start}.risk-row{grid-template-columns:24px minmax(90px,1fr) minmax(60px,.8fr) 58px;gap:8px}.risk-share{display:none}}
+@media(max-width:480px){.kpis,.risk-summary,.mini-kpis{grid-template-columns:1fr 1fr;gap:9px}.kpi{padding:13px}.kpi .value{font-size:24px}.kpi .label{font-size:9px}.tab-intro{display:block}.tab-intro .result-count{display:inline-block;margin-top:10px}.toolbar.filter-bar{align-items:stretch}.field,.search-field{width:100%;min-width:0}.field select,.field input{flex:1}.table-summary{align-items:flex-start;flex-direction:column}.panel{padding:14px}.risk-row{grid-template-columns:20px minmax(82px,1fr) minmax(52px,.65fr) 54px;gap:6px}.risk-units{font-size:14px}.sort-control{width:100%;justify-content:space-between}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.dragging{background:rgba(255,255,255,.16);border-color:#fff;transform:translateY(-1px)}.over-plan{color:var(--red);font-weight:700}.clear-saved[hidden]{display:none}.gauge-wrap{height:230px}.gauge-ring{background:conic-gradient(from 270deg,var(--meter-color,var(--green)) 0 var(--pct),#e8edf2 var(--pct) 50%,transparent 50% 100%)}.gauge-caption{margin-top:8px}.legend-note{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side" id="side"><div class="brand"><div class="logo">CT</div><div><b>Dispatch Control Tower</b><span>CV Operations • Dharwad</span></div></div>
+<label class="upload" id="dropZone"><span class="upload-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5"/></svg></span><b>Upload dispatch workbook</b><small>Drop or choose .xlsx / .xls</small><input id="fileInput" type="file" accept=".xlsx,.xls,.xlsm"></label>
+<div class="saved-state" id="savedState" aria-live="polite"><span class="saved-dot"></span><span id="savedLabel">No saved workbook</span></div>
+<button class="clear-saved" id="clearSavedBtn" type="button" hidden>Clear saved workbook</button>
+<nav class="nav" aria-label="Dashboard views"><button class="active" data-tab="executive"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="5" rx="1"/><rect x="13" y="10" width="8" height="11" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg>Executive Summary</button><button data-tab="performance"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h17M8 15l3-4 3 2 5-7"/></svg>Performance Analysis</button><button data-tab="risks"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>Risk Monitor</button><button data-tab="explorer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4zM4 9h16M9 9v11"/></svg>Sheet Explorer</button></nav><div class="side-foot">Your workbook is stored in this browser only. It is not uploaded to a server.</div></aside>
+<main class="main"><header class="top"><button class="btn mobile" id="menu" aria-label="Open navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="title"><h1 id="pageTitle">Executive Summary</h1><p id="period">Upload the chassis dispatch workbook to begin</p></div><div class="actions"><span class="spinner" id="spinner" aria-label="Loading"></span><span class="file-name hint" id="fileName">No file loaded</span><button class="btn primary" id="exportBtn" type="button">Export CSV</button></div></header>
+<section class="content"><div id="message" class="notice" role="status" aria-live="polite">Upload <b>7.1 Chassis dispatch Status Oct 26.xlsx</b>. The parser is designed for merged headers and multi-section Summary sheets.</div>
+<div id="executive" class="tab active"><div class="grid kpis">
+<div class="card kpi" style="--tone:var(--blue)"><div class="label">TOTAL DISPATCH PLAN</div><div class="value" id="kPlan">0</div><div class="sub" id="kModels">0 models / families</div><div class="bar"><i id="barPlan"></i></div></div>
+<div class="card kpi" style="--tone:var(--green)"><div class="label">DISPATCHED</div><div class="value" id="kActual">0</div><div class="sub">Till date</div><div class="bar"><i id="barActual"></i></div></div>
+<div class="card kpi" style="--tone:var(--red)"><div class="label">NET BALANCE</div><div class="value" id="kPending">0</div><div class="sub" id="kCritical">0 critical lines</div><div class="bar"><i id="barPending"></i></div></div>
+<div class="card kpi" style="--tone:var(--cyan)"><div class="label">ACHIEVEMENT</div><div class="value" id="kAchievement">0%</div><div class="sub">Actual ÷ plan</div><div class="bar"><i id="barAchievement"></i></div></div>
+<div class="card kpi" style="--tone:var(--amber)"><div class="label">FLOAT + TRANSIT</div><div class="value" id="kStock">0</div><div class="sub">IFLT + SFLT + transit</div><div class="bar"><i id="barStock"></i></div></div></div>
+<div class="grid row2"><div class="card panel"><div class="panel-head"><h2>Dispatch plan vs actual</h2><span class="hint">Top 12 by plan</span></div><div class="chart"><canvas id="planChart"></canvas></div></div><div class="card panel"><div class="panel-head"><h2>Overall achievement</h2><span class="pill" id="healthPill">Awaiting data</span></div><div class="gauge-wrap"><div><div class="gauge"><div class="gauge-ring" id="ring"></div><div class="gauge-val" id="gaugeVal">0%</div></div><div class="gauge-caption" id="gaugeCaption">Upload workbook</div></div></div><div class="health-list" id="healthList"></div></div></div>
+<div class="grid row3"><div class="card panel"><div class="panel-head"><h2>Top pending families</h2><span class="hint">Positive balance only</span></div><div class="chart small"><canvas id="pendingChart"></canvas></div></div><div class="card panel"><div class="panel-head"><h2>Section contribution</h2><span class="hint">Plan by business section</span></div><div class="chart small"><canvas id="sectionChart"></canvas></div></div></div></div>
+<div id="performance" class="tab">
+<div class="tab-intro"><div><span class="eyebrow">DISPATCH DETAIL</span><h2>Performance Analysis</h2><p>Compare plan, dispatch, open balance, and stock position across families.</p></div><div class="result-count" id="performanceCount">0 lines</div></div>
+<div class="grid mini-kpis" id="performanceMetrics"></div>
+<div class="toolbar filter-bar"><div class="field"><label for="sectionFilter">Section</label><select id="sectionFilter"><option value="ALL">All sections</option></select></div><div class="field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="ALL">All statuses</option><option>Critical</option><option>Watch</option><option>On Track</option><option>Exceeded</option></select></div><div class="field search-field"><label for="modelSearch">Search</label><input id="modelSearch" placeholder="Family or section"></div><button class="btn subtle" id="clearFilters" type="button">Clear filters</button></div>
+<div class="card table-card"><div class="table-summary"><div><b>Dispatch lines</b><span id="tableSummary">Showing all active families</span></div><label class="sort-control">Sort by<select id="sortBy"><option value="pending">Net balance</option><option value="plan">Plan</option><option value="achievement">Achievement</option><option value="family">Family name</option></select></label></div><div class="table-scroll"><table class="data performance-table"><thead><tr><th>Section</th><th>Family / Model</th><th class="num">Plan</th><th class="num">Dispatched</th><th class="num">Net balance</th><th>Achievement</th><th class="num">IFLT</th><th class="num">SFLT</th><th class="num">Transit</th><th>Status</th></tr></thead><tbody id="performanceBody"></tbody></table></div></div>
+</div>
+<div id="risks" class="tab">
+<div class="tab-intro"><div><span class="eyebrow">EXCEPTIONS & EXPOSURE</span><h2>Risk Monitor</h2><p>Prioritize the largest positive open balances and spot over-plan lines.</p></div><div class="result-count" id="riskLineCount">0 open lines</div></div>
+<div class="grid risk-summary" id="riskSummary"></div>
+<div class="grid risk-layout"><div class="card panel"><div class="panel-head"><div><span class="eyebrow">OPEN BALANCE RANKING</span><h2>Where backlog is concentrated</h2></div><span class="hint">Positive balance by family</span></div><div id="riskCards" class="risk-list"></div></div><div class="grid risk-side"><div class="card panel"><div class="panel-head"><div><span class="eyebrow">CONCENTRATION</span><h2>Largest open lines</h2></div><span class="hint">Units</span></div><div class="chart risk-chart"><canvas id="riskChart" aria-label="Open balance by family"></canvas></div><div id="riskLegend" class="chart-legend"></div></div><div class="card panel"><div class="panel-head"><div><span class="eyebrow">OPERATIONS PULSE</span><h2>What needs attention</h2></div></div><div id="observations" class="health-list"></div></div></div></div>
+</div>
+<div id="explorer" class="tab">
+<div class="tab-intro"><div><span class="eyebrow">WORKBOOK BROWSER</span><h2>Sheet Explorer</h2><p>Inspect the original workbook sheets without changing their row or column positions.</p></div><div class="result-count" id="sheetCount">0 sheets</div></div>
+<div class="sheet-grid"><div class="card sheet-nav-card"><div class="sheet-nav-head"><b>Workbook sheets</b><span class="hint" id="sheetNavMeta"></span></div><div class="sheet-list" id="sheetList"></div></div><div class="sheet-detail"><div class="card sheet-heading"><div><span class="eyebrow">SELECTED SHEET</span><h2 id="activeSheetTitle">No workbook loaded</h2><p id="activeSheetMeta">Upload a workbook to browse its contents.</p></div><span class="sheet-pill" id="activeSheetSize"></span></div><div class="toolbar explorer-toolbar"><div class="field search-field"><label for="sheetSearch">Find in sheet</label><input id="sheetSearch" placeholder="Search cell values"></div><div class="field"><label for="rowLimit">Rows</label><select id="rowLimit"><option>50</option><option selected>100</option><option>250</option><option>500</option></select></div><button class="btn subtle" id="clearSheetSearch" type="button">Clear search</button><span class="result-count" id="sheetResultCount"></span></div><div class="card table-card explorer-table-card"><div class="table-scroll"><table class="data sheet-data" id="sheetTable"></table></div></div></div></div>
+</div>
+</section></main></div>
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+let wb = null;
+let summary = [];
+let filtered = [];
+let activeSheet = '';
+const DB_NAME = 'dispatch-control-tower';
+const DB_VERSION = 1;
+const STORE_NAME = 'workbooks';
+const LATEST_KEY = 'latest';
+
+const n = value => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  const parsed = parseFloat(String(value ?? '').replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+const clean = value => String(value ?? '').replace(/\s+/g, ' ').trim();
+const esc = value => clean(value).replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[char]));
+const format = value => Number(value || 0).toLocaleString('en-IN');
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+function setMessage(text, type = 'good') {
+  const notice = $('#message');
+  notice.className = `notice ${type}`;
+  notice.innerHTML = text;
+}
+
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) {
+      reject(new Error('This browser does not support local workbook storage.'));
+      return;
+    }
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains(STORE_NAME)) {
+        database.createObjectStore(STORE_NAME, { keyPath: 'key' });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('Could not open local storage.'));
+  });
+}
+
+async function withWorkbookStore(mode, operation) {
+  const database = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(STORE_NAME, mode);
+    const store = transaction.objectStore(STORE_NAME);
+    let request;
+    let result;
+    try {
+      request = operation(store);
+    } catch (error) {
+      database.close();
+      reject(error);
+      return;
+    }
+    request.onsuccess = () => { result = request.result; };
+    request.onerror = () => reject(request.error || new Error('Local workbook storage failed.'));
+    transaction.oncomplete = () => {
+      database.close();
+      resolve(result);
+    };
+    transaction.onerror = () => {
+      database.close();
+      reject(transaction.error || new Error('Local workbook storage failed.'));
+    };
+    transaction.onabort = () => {
+      database.close();
+      reject(transaction.error || new Error('Local workbook storage was interrupted.'));
+    };
+  });
+}
+
+function saveWorkbook(record) {
+  return withWorkbookStore('readwrite', store => store.put(record));
+}
+function getSavedWorkbook() {
+  return withWorkbookStore('readonly', store => store.get(LATEST_KEY));
+}
+function deleteSavedWorkbook() {
+  return withWorkbookStore('readwrite', store => store.delete(LATEST_KEY));
+}
+
+function updateSavedState(state, label) {
+  const element = $('#savedState');
+  element.className = `saved-state ${state}`;
+  $('#savedLabel').textContent = label;
+  $('#clearSavedBtn').hidden = state !== 'saved';
+}
+
+function status(row) {
+  if (row.plan <= 0 && row.actual > 0) return 'Exceeded';
+  const achievement = row.plan ? 100 * row.actual / row.plan : 0;
+  if (row.pending <= 0 && row.actual > 0) return 'Exceeded';
+  if (achievement >= 90) return 'On Track';
+  if (achievement >= 70) return 'Watch';
+  return 'Critical';
+}
+function statusColorClass(value) {
+  return value === 'Critical' ? 'red' : value === 'Watch' ? 'amber' : value === 'Exceeded' ? 'blue' : 'green';
+}
+function parseSummary(sheet) {
+  const output = [];
+  let section = 'Unclassified';
+  if (!sheet['!ref']) return output;
+  const range = XLSX.utils.decode_range(sheet['!ref']);
+  const cellValue = (row, column) => sheet[XLSX.utils.encode_cell({ r: row, c: column })]?.v ?? '';
+  for (let index = range.s.r; index <= range.e.r; index++) {
+    const sectionCell = clean(cellValue(index, 5));
+    const family = clean(cellValue(index, 7));
+    if (sectionCell && !/total plan/i.test(sectionCell)) section = sectionCell;
+    const plan = n(cellValue(index, 11));
+    const actual = n(cellValue(index, 13));
+    const pending = n(cellValue(index, 14));
+    if (!family || /^(family|oct|total)$/i.test(family) || /total plan/i.test(sectionCell)) continue;
+    if (plan === 0 && actual === 0 && pending === 0) continue;
+    output.push({
+      row: index + 1,
+      section,
+      family,
+      plan,
+      actual,
+      pending,
+      iflt: n(cellValue(index, 15)),
+      sflt: n(cellValue(index, 16)),
+      transit: n(cellValue(index, 18)),
+      line: n(cellValue(index, 19))
+    });
+  }
+  return output;
+}
+
+function resetViewState() {
+  wb = null;
+  summary = [];
+  filtered = [];
+  activeSheet = '';
+  $('#fileName').textContent = 'No file loaded';
+  $('#period').textContent = 'Upload the chassis dispatch workbook to begin';
+  setMessage('Upload <b>7.1 Chassis dispatch Status Oct 26.xlsx</b>. The workbook will be saved locally after it loads.');
+  $('#sheetList').innerHTML = '';
+  $('#sheetTable').innerHTML = '';
+  $('#activeSheetTitle').textContent = 'No workbook loaded';
+  $('#activeSheetMeta').textContent = 'Upload a workbook to browse its contents.';
+  $('#activeSheetSize').textContent = '';
+  $('#sheetCount').textContent = '0 sheets';
+  $('#sheetNavMeta').textContent = '';
+  $('#sheetResultCount').textContent = '';
+  $('#performanceBody').innerHTML = '<tr><td colspan="10"><div class="empty">Upload a workbook to view dispatch performance.</div></td></tr>';
+  $('#performanceMetrics').innerHTML = '';
+  $('#performanceCount').textContent = '0 lines';
+  $('#riskSummary').innerHTML = '';
+  $('#riskCards').innerHTML = '<div class="empty">Upload a workbook to review open risks.</div>';
+  $('#observations').innerHTML = '';
+  $('#riskLegend').innerHTML = '';
+  ['kPlan', 'kActual', 'kPending', 'kStock'].forEach(id => { $(`#${id}`).textContent = '0'; });
+  $('#kModels').textContent = '0 active lines';
+  $('#kCritical').textContent = 'No workbook loaded';
+  $('#kAchievement').textContent = '0%';
+  $('#gaugeVal').textContent = '0%';
+  $('#gaugeCaption').textContent = 'Upload workbook';
+  $('#healthPill').textContent = 'Awaiting data';
+  $('#healthPill').className = 'pill';
+  ['barActual', 'barAchievement', 'barPending', 'barStock', 'barPlan'].forEach(id => { $(`#${id}`).style.width = '0%'; });
+  $('#ring').style.setProperty('--pct', '0%');
+}
+
+function renderLoadedWorkbook(fileName, source) {
+  $('#fileName').textContent = fileName;
+  $('#period').textContent = `${fileName} • ${wb.SheetNames.length} sheets • ${summary.length} data lines`;
+  $('#sectionFilter').value = 'ALL';
+  $('#statusFilter').value = 'ALL';
+  $('#modelSearch').value = '';
+  $('#sortBy').value = 'pending';
+  $('#sheetSearch').value = '';
+  $('#rowLimit').value = '100';
+  buildFilters();
+  renderAll();
+  renderSheetList();
+  showSheet(wb.SheetNames.find(name => name.toLowerCase() === 'summary') || wb.SheetNames[0]);
+  setMessage(`<b>${esc(fileName)}</b> ${source === 'restore' ? 'restored from this browser' : 'loaded successfully'}. ${summary.length} dispatch lines detected across ${new Set(summary.map(row => row.section)).size} sections.`, 'good');
+}
+
+function parseAndDisplay(data, fileName, source) {
+  if (typeof XLSX === 'undefined') throw new Error('The Excel reader could not load. Connect to the internet once, refresh this page, then upload the workbook.');
+  const candidate = XLSX.read(data, { type: 'array', cellDates: true });
+  const summaryName = candidate.SheetNames.find(name => name.toLowerCase() === 'summary') || candidate.SheetNames[0];
+  if (!summaryName) throw new Error('No worksheets were found in this workbook.');
+  const parsed = parseSummary(candidate.Sheets[summaryName]);
+  if (!parsed.length) throw new Error('No plan/dispatch rows were detected in the Summary sheet.');
+  wb = candidate;
+  summary = parsed;
+  renderLoadedWorkbook(fileName, source);
+}
+
+async function loadFile(file) {
+  if (!file) return;
+  $('#spinner').style.display = 'inline-block';
+  try {
+    const data = await file.arrayBuffer();
+    parseAndDisplay(data, file.name, 'upload');
+    try {
+      const record = { key: LATEST_KEY, name: file.name, savedAt: new Date().toISOString(), data };
+      await saveWorkbook(record);
+      updateSavedState('saved', `Saved in this browser • ${new Date(record.savedAt).toLocaleString()}`);
+      setMessage(`<b>${esc(file.name)}</b> loaded and saved in this browser. ${summary.length} dispatch lines detected across ${new Set(summary.map(row => row.section)).size} sections.`, 'good');
+    } catch (storageError) {
+      console.warn('Workbook could not be saved locally:', storageError);
+      updateSavedState('warning', 'This workbook is available for this session only. Browser storage was unavailable.');
+      setMessage(`<b>${esc(file.name)}</b> is loaded for this session, but could not be saved locally. ${esc(storageError.message)} Upload it again after reopening.`, 'bad');
+    }
+  } catch (error) {
+    console.error(error);
+    setMessage(`<b>Could not load workbook:</b> ${esc(error.message)}. Confirm it contains a Summary sheet with Family in column H, plan in L, dispatched in N, and balance in O.`, 'bad');
+  } finally {
+    $('#spinner').style.display = 'none';
+  }
+}
+
+async function restoreSavedWorkbook() {
+  try {
+    const record = await getSavedWorkbook();
+    if (!record) {
+      updateSavedState('', 'No saved workbook');
+      return;
+    }
+    parseAndDisplay(record.data, record.name, 'restore');
+    updateSavedState('saved', `Saved in this browser • ${new Date(record.savedAt).toLocaleString()}`);
+  } catch (error) {
+    console.warn('Saved workbook could not be restored:', error);
+    updateSavedState('warning', 'Could not access the saved workbook. Upload the file again.');
+    setMessage(`The saved workbook could not be restored. ${esc(error.message)} Upload the workbook again to continue.`, 'bad');
+  }
+}
+
+async function clearSavedWorkbook() {
+  if (!window.confirm('Clear the saved workbook from this browser? The current dashboard data will also be cleared.')) return;
+  try {
+    await deleteSavedWorkbook();
+    location.reload();
+  } catch (error) {
+    setMessage(`Could not clear the saved workbook. ${esc(error.message)}`, 'bad');
+  }
+}
+
+function totals(data = summary) {
+  return data.reduce((acc, row) => {
+    acc.plan += row.plan;
+    acc.actual += row.actual;
+    acc.netBalance += row.pending;
+    acc.positiveBacklog += Math.max(0, row.pending);
+    acc.overPlan += Math.max(0, -row.pending);
+    acc.iflt += row.iflt;
+    acc.sflt += row.sflt;
+    acc.transit += row.transit;
+    return acc;
+  }, { plan: 0, actual: 0, netBalance: 0, positiveBacklog: 0, overPlan: 0, iflt: 0, sflt: 0, transit: 0 });
+}
+
+function renderAll() {
+  renderKPIs();
+  renderCharts();
+  applyFilters();
+  renderRisks();
+}
+
+function renderKPIs() {
+  const totalsAll = totals();
+  const achievement = totalsAll.plan ? 100 * totalsAll.actual / totalsAll.plan : 0;
+  $('#kPlan').textContent = format(totalsAll.plan);
+  $('#kActual').textContent = format(totalsAll.actual);
+  $('#kPending').textContent = format(totalsAll.netBalance);
+  $('#kStock').textContent = format(totalsAll.iflt + totalsAll.sflt + totalsAll.transit);
+  $('#kModels').textContent = `${summary.length} active lines`;
+  $('#kCritical').textContent = `${format(totalsAll.positiveBacklog)} positive backlog • ${format(totalsAll.overPlan)} over plan`;
+  $('#kAchievement').textContent = `${achievement.toFixed(1)}%`;
+  $('#barPlan').style.width = '100%';
+  $('#barActual').style.width = `${Math.min(100, achievement)}%`;
+  $('#barAchievement').style.width = `${Math.min(100, achievement)}%`;
+  $('#barPending').style.width = `${Math.min(100, totalsAll.plan ? 100 * totalsAll.positiveBacklog / totalsAll.plan : 0)}%`;
+  $('#barStock').style.width = `${Math.min(100, totalsAll.plan ? 100 * (totalsAll.iflt + totalsAll.sflt + totalsAll.transit) / totalsAll.plan : 0)}%`;
+  const pct = Math.min(100, Math.max(0, achievement));
+  $('#ring').style.setProperty('--pct', `${pct / 2}%`);
+  $('#gaugeVal').textContent = `${achievement.toFixed(1)}%`;
+  const health = achievement >= 90 ? ['On Track', 'green'] : achievement >= 75 ? ['Needs Attention', 'amber'] : ['Critical', 'red'];
+  $('#healthPill').className = `pill ${health[1]}`;
+  $('#healthPill').textContent = health[0];
+  $('#ring').style.setProperty('--meter-color', `var(--${health[1] === 'amber' ? 'amber' : health[1] === 'red' ? 'red' : 'green'})`);
+  $('#gaugeCaption').textContent = `${format(totalsAll.positiveBacklog)} positive open units`;
+  const counts = ['Exceeded', 'On Track', 'Watch', 'Critical'].map(label => [label, summary.filter(row => status(row) === label).length]);
+  $('#healthList').innerHTML = counts.map(([label, count]) => `<div class="health"><i class="dot" style="background:${label === 'Critical' ? 'var(--red)' : label === 'Watch' ? 'var(--amber)' : 'var(--green)'}"></i><span>${label}</span><b>${count}</b></div>`).join('');
+}
+
+function canvas(id) {
+  const element = $(id);
+  if (!element) return null;
+  const ratio = window.devicePixelRatio || 1;
+  const width = element.clientWidth || 600;
+  const height = element.clientHeight || 300;
+  element.width = width * ratio;
+  element.height = height * ratio;
+  const context = element.getContext('2d');
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  context.clearRect(0, 0, width, height);
+  return { context, width, height };
+}
+
+function barChart(id, items, keys, colors, horizontal = false) {
+  const surface = canvas(id);
+  if (!surface) return;
+  const { context: ctx, width, height } = surface;
+  const muted = cssVar('--muted');
+  ctx.font = '11px Segoe UI, Arial, sans-serif';
+  ctx.fillStyle = muted;
+  if (!items.length) {
+    ctx.fillText('No matching data', 18, 26);
+    return;
+  }
+  if (horizontal) {
+    const labelWidth = Math.min(140, Math.max(92, width * .31));
+    const right = 44;
+    const top = 10;
+    const bottom = 10;
+    const max = Math.max(1, ...items.flatMap(item => keys.map(key => item[key])));
+    const rowHeight = (height - top - bottom) / items.length;
+    items.forEach((item, index) => {
+      const y = top + index * rowHeight;
+      ctx.fillStyle = muted;
+      ctx.textAlign = 'right';
+      ctx.fillText(item.label.slice(0, 19), labelWidth - 8, y + rowHeight * .62);
+      keys.forEach((key, keyIndex) => {
+        const barWidth = Math.max(0, (width - labelWidth - right) * item[key] / max);
+        ctx.fillStyle = colors[keyIndex];
+        ctx.fillRect(labelWidth, y + rowHeight * .24, barWidth, Math.min(12, rowHeight * .48));
+      });
+      ctx.fillStyle = muted;
+      ctx.textAlign = 'left';
+      ctx.fillText(format(item[keys[0]]), labelWidth + (width - labelWidth - right) * item[keys[0]] / max + 6, y + rowHeight * .62);
+    });
+    return;
+  }
+  const left = 42;
+  const right = 10;
+  const top = 10;
+  const bottom = 70;
+  const max = Math.max(1, ...items.flatMap(item => keys.map(key => item[key])));
+  const plotWidth = width - left - right;
+  const plotHeight = height - top - bottom;
+  for (let index = 0; index <= 4; index++) {
+    const y = top + plotHeight * index / 4;
+    ctx.strokeStyle = cssVar('--line');
+    ctx.beginPath();
+    ctx.moveTo(left, y);
+    ctx.lineTo(width - right, y);
+    ctx.stroke();
+    ctx.fillStyle = muted;
+    ctx.textAlign = 'right';
+    ctx.fillText(format(Math.round(max * (4 - index) / 4)), left - 7, y + 4);
+  }
+  const groupWidth = plotWidth / items.length;
+  const barWidth = Math.min(24, groupWidth / (keys.length + 1));
+  items.forEach((item, index) => {
+    keys.forEach((key, keyIndex) => {
+      const barHeight = plotHeight * item[key] / max;
+      ctx.fillStyle = colors[keyIndex];
+      ctx.fillRect(left + index * groupWidth + (groupWidth - keys.length * barWidth) / 2 + keyIndex * barWidth, top + plotHeight - barHeight, barWidth - 2, barHeight);
+    });
+    ctx.save();
+    ctx.translate(left + index * groupWidth + groupWidth / 2, height - bottom + 7);
+    ctx.rotate(-.65);
+    ctx.fillStyle = muted;
+    ctx.textAlign = 'right';
+    ctx.fillText(item.label.slice(0, 14), 0, 0);
+    ctx.restore();
+  });
+}
+
+function donut(id, items) {
+  const surface = canvas(id);
+  if (!surface) return;
+  const { context: ctx, width, height } = surface;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const radius = Math.min(width, height) * .34;
+  const total = items.reduce((acc, item) => acc + item.value, 0) || 1;
+  const colors = [cssVar('--blue'), cssVar('--green'), cssVar('--amber'), cssVar('--red'), cssVar('--cyan'), cssVar('--nav-raised'), cssVar('--muted')];
+  let angle = -Math.PI / 2;
+  items.forEach((item, index) => {
+    const nextAngle = angle + 2 * Math.PI * item.value / total;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, angle, nextAngle);
+    ctx.fillStyle = colors[index % colors.length];
+    ctx.fill();
+    angle = nextAngle;
+  });
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius * .57, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.fillStyle = cssVar('--ink');
+  ctx.textAlign = 'center';
+  ctx.font = '700 22px Segoe UI, Arial, sans-serif';
+  ctx.fillText(format(total), centerX, centerY + 5);
+  ctx.font = '11px Segoe UI, Arial, sans-serif';
+  ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('TOTAL PLAN', centerX, centerY + 22);
+}
+
+function renderCharts() {
+  const top = [...summary].sort((a, b) => b.plan - a.plan).slice(0, 12).map(row => ({ label: row.family, plan: row.plan, actual: row.actual }));
+  barChart('#planChart', top, ['plan', 'actual'], ['#b9d7eb', cssVar('--blue')]);
+  const pending = [...summary].filter(row => row.pending > 0).sort((a, b) => b.pending - a.pending).slice(0, 10).map(row => ({ label: row.family, pending: row.pending }));
+  barChart('#pendingChart', pending, ['pending'], [cssVar('--red')], true);
+  const sectionPlans = {};
+  summary.forEach(row => { sectionPlans[row.section] = (sectionPlans[row.section] || 0) + row.plan; });
+  donut('#sectionChart', Object.entries(sectionPlans).sort((a, b) => b[1] - a[1]).slice(0, 7).map(([label, value]) => ({ label, value })));
+}
+
+function buildFilters() {
+  const sections = [...new Set(summary.map(row => row.section))];
+  $('#sectionFilter').innerHTML = '<option value="ALL">All sections</option>' + sections.map(section => `<option value="${esc(section)}">${esc(section)}</option>`).join('');
+}
+
+function renderPerformanceMetrics(rows) {
+  const values = totals(rows);
+  const achievement = values.plan ? 100 * values.actual / values.plan : 0;
+  const metrics = [
+    ['PLANNED', format(values.plan), `${rows.length} matching families`],
+    ['DISPATCHED', format(values.actual), `${achievement.toFixed(1)}% of filtered plan`],
+    ['NET BALANCE', format(values.netBalance), `${format(values.overPlan)} units over plan`],
+    ['POSITIVE BACKLOG', format(values.positiveBacklog), 'Open balance above zero']
+  ];
+  $('#performanceMetrics').innerHTML = metrics.map(([label, value, detail]) => `<div class="card mini-kpi"><div class="label">${label}</div><div class="value">${value}</div><div class="detail">${detail}</div></div>`).join('');
+}
+
+function applyFilters() {
+  const section = $('#sectionFilter').value;
+  const selectedStatus = $('#statusFilter').value;
+  const query = $('#modelSearch').value.toLowerCase().trim();
+  const sortBy = $('#sortBy').value;
+  filtered = summary.filter(row => (section === 'ALL' || row.section === section) && (selectedStatus === 'ALL' || status(row) === selectedStatus) && (!query || `${row.family} ${row.section}`.toLowerCase().includes(query)));
+  filtered.sort((a, b) => {
+    if (sortBy === 'family') return a.family.localeCompare(b.family);
+    if (sortBy === 'plan') return b.plan - a.plan;
+    if (sortBy === 'achievement') return (b.plan ? b.actual / b.plan : 0) - (a.plan ? a.actual / a.plan : 0);
+    return b.pending - a.pending;
+  });
+  renderPerformanceMetrics(filtered);
+  $('#performanceCount').textContent = `${filtered.length} of ${summary.length} lines`;
+  $('#tableSummary').textContent = section === 'ALL' && selectedStatus === 'ALL' && !query ? 'Showing all active families' : `Filtered from ${summary.length} active families`;
+  $('#performanceBody').innerHTML = filtered.map(row => {
+    const rowStatus = status(row);
+    const achievement = row.plan ? 100 * row.actual / row.plan : 0;
+    return `<tr><td>${esc(row.section)}</td><td><b>${esc(row.family)}</b></td><td class="num">${format(row.plan)}</td><td class="num">${format(row.actual)}</td><td class="num ${row.pending < 0 ? 'over-plan' : ''}">${format(row.pending)}</td><td><div class="achievement-cell"><span>${achievement.toFixed(1)}%</span><span class="achievement-track" aria-hidden="true"><i style="width:${Math.min(100, Math.max(0, achievement))}%"></i></span></div></td><td class="num">${format(row.iflt)}</td><td class="num">${format(row.sflt)}</td><td class="num">${format(row.transit)}</td><td><span class="pill ${statusColorClass(rowStatus)}">${rowStatus}</span></td></tr>`;
+  }).join('') || '<tr><td colspan="10"><div class="empty">No matching lines. Adjust or clear the filters to see dispatch families.</div></td></tr>';
+}
+
+function renderRisks() {
+  const totalsAll = totals();
+  const openRows = summary.filter(row => row.pending > 0).sort((a, b) => b.pending - a.pending);
+  const largest = openRows[0];
+  const largestShare = largest && totalsAll.positiveBacklog ? 100 * largest.pending / totalsAll.positiveBacklog : 0;
+  const metrics = [
+    ['POSITIVE BACKLOG', format(totalsAll.positiveBacklog), 'Units with balance above zero', 'red'],
+    ['NET BALANCE', format(totalsAll.netBalance), `${format(totalsAll.overPlan)} units over plan`, 'blue'],
+    ['OPEN FAMILIES', format(openRows.length), `Across ${new Set(openRows.map(row => row.section)).size} sections`, 'amber'],
+    ['LARGEST LINE SHARE', `${largestShare.toFixed(1)}%`, largest ? largest.family : 'No open lines', 'cyan']
+  ];
+  $('#riskSummary').innerHTML = metrics.map(([label, value, detail, tone]) => `<div class="card risk-metric" style="--tone:var(--${tone})"><div class="label">${label}</div><div class="value">${value}</div><div class="detail">${esc(detail)}</div></div>`).join('');
+  $('#riskLineCount').textContent = `${openRows.length} open lines`;
+  const topRows = openRows.slice(0, 10);
+  $('#riskCards').innerHTML = topRows.map((row, index) => {
+    const share = totalsAll.positiveBacklog ? 100 * row.pending / totalsAll.positiveBacklog : 0;
+    const width = largest ? 100 * row.pending / largest.pending : 0;
+    return `<div class="risk-row"><span class="risk-rank">${String(index + 1).padStart(2, '0')}</span><div class="risk-family"><b>${esc(row.family)}</b><small>${esc(row.section)} · <span class="pill ${statusColorClass(status(row))}">${status(row)}</span></small></div><div class="risk-bar" aria-label="${share.toFixed(1)} percent of positive backlog"><i style="width:${width}%"></i></div><span class="risk-units">${format(row.pending)}</span><span class="risk-share">${share.toFixed(1)}% of open</span></div>`;
+  }).join('') || '<div class="empty">No positive open balances in this workbook.</div>';
+  const chartRows = topRows.slice(0, 8).map(row => ({ label: row.family, pending: row.pending }));
+  barChart('#riskChart', chartRows, ['pending'], [cssVar('--red')], true);
+  $('#riskLegend').innerHTML = `<span class="legend-note">Showing the top ${chartRows.length} of ${openRows.length} open lines</span>`;
+  const critical = summary.filter(row => status(row) === 'Critical').length;
+  const overPlanLines = summary.filter(row => row.pending < 0).length;
+  const stock = totalsAll.iflt + totalsAll.sflt + totalsAll.transit;
+  const observations = [
+    largest ? `${largest.family} has the largest positive balance: ${format(largest.pending)} units (${largestShare.toFixed(1)}% of open backlog).` : 'There are no positive open balances.',
+    `${critical} families are below 70% achievement.`,
+    `${format(totalsAll.overPlan)} units are over plan across ${overPlanLines} families.`,
+    `${format(stock)} units are visible across IFLT, SFLT, and transit.`
+  ];
+  $('#observations').innerHTML = observations.map((observation, index) => `<div class="health"><i class="dot" style="background:${index === 0 && largest ? 'var(--red)' : index === 1 && critical ? 'var(--amber)' : 'var(--blue)'}"></i><span>${esc(observation)}</span></div>`).join('');
+}
+
+function columnName(index) {
+  let value = index + 1;
+  let name = '';
+  while (value > 0) {
+    const remainder = (value - 1) % 26;
+    name = String.fromCharCode(65 + remainder) + name;
+    value = Math.floor((value - 1) / 26);
+  }
+  return name;
+}
+
+function getSheetGrid(sheetName = activeSheet) {
+  if (!wb || !wb.Sheets[sheetName]) return null;
+  const sheet = wb.Sheets[sheetName];
+  if (!sheet['!ref']) return { sheet, range: null, rows: [] };
+  const range = XLSX.utils.decode_range(sheet['!ref']);
+  const rows = [];
+  for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex++) {
+    const values = [];
+    for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
+      const cell = sheet[XLSX.utils.encode_cell({ r: rowIndex, c: colIndex })];
+      values.push(cell ? (cell.w ?? cell.v ?? '') : '');
+    }
+    rows.push({ rowNumber: rowIndex + 1, values });
+  }
+  return { sheet, range, rows };
+}
+
+function renderSheetList() {
+  if (!wb) return;
+  $('#sheetList').innerHTML = wb.SheetNames.map(name => {
+    const grid = getSheetGrid(name);
+    const rowCount = grid?.range ? grid.range.e.r - grid.range.s.r + 1 : 0;
+    const colCount = grid?.range ? grid.range.e.c - grid.range.s.c + 1 : 0;
+    return `<button type="button" class="${name === activeSheet ? 'active' : ''}" data-sheet="${esc(name)}" aria-current="${name === activeSheet ? 'page' : 'false'}"><span class="sheet-name">${esc(name)}</span><span class="sheet-rows">${rowCount}×${colCount}</span></button>`;
+  }).join('');
+  $$('#sheetList button').forEach(button => { button.onclick = () => showSheet(button.dataset.sheet); });
+  $('#sheetCount').textContent = `${wb.SheetNames.length} sheets`;
+  $('#sheetNavMeta').textContent = `${wb.SheetNames.length} total`;
+}
+
+function showSheet(name) {
+  activeSheet = name;
+  renderSheetList();
+  renderSheetTable();
+}
+
+function renderSheetTable() {
+  if (!wb || !activeSheet) return;
+  const grid = getSheetGrid(activeSheet);
+  const { range, rows } = grid;
+  $('#activeSheetTitle').textContent = activeSheet;
+  const rowCount = range ? range.e.r - range.s.r + 1 : 0;
+  const colCount = range ? range.e.c - range.s.c + 1 : 0;
+  $('#activeSheetMeta').textContent = rowCount ? `Original worksheet range ${XLSX.utils.encode_range(range)} • Row and column positions are preserved` : 'This worksheet is empty.';
+  $('#activeSheetSize').textContent = rowCount ? `${rowCount} rows × ${colCount} columns` : 'Empty sheet';
+  const query = $('#sheetSearch').value.toLowerCase().trim();
+  const limit = Math.min(500, Math.max(1, n($('#rowLimit').value)));
+  const matches = rows.filter(row => !query || row.values.some(value => clean(value).toLowerCase().includes(query)));
+  const visible = matches.slice(0, limit);
+  const startColumn = range ? range.s.c : 0;
+  const headings = range ? Array.from({ length: colCount }, (_, index) => columnName(startColumn + index)) : [];
+  const head = `<thead><tr><th scope="col">Row</th>${headings.map(label => `<th scope="col">${label}</th>`).join('')}</tr></thead>`;
+  const body = visible.map(row => `<tr><th scope="row">${row.rowNumber}</th>${row.values.map(value => `<td title="${esc(value)}">${esc(value)}</td>`).join('')}</tr>`).join('');
+  $('#sheetTable').innerHTML = `${head}<tbody>${body || `<tr><td colspan="${Math.max(1, headings.length + 1)}"><div class="empty">${query ? 'No rows match this search.' : 'This worksheet has no populated cells.'}</div></td></tr>`}</tbody>`;
+  $('#sheetResultCount').textContent = query ? `${format(matches.length)} matching rows${matches.length > visible.length ? ` • showing ${format(visible.length)}` : ''}` : `${format(visible.length)} of ${format(rows.length)} rows`;
+}
+
+function exportCSV() {
+  if (!summary.length) {
+    setMessage('Upload a workbook before exporting.', 'bad');
+    return;
+  }
+  const headers = ['Section', 'Family', 'Plan', 'Dispatched', 'Net Balance', 'Positive Backlog', 'Achievement', 'IFLT', 'SFLT', 'Transit', 'Status'];
+  const lines = [headers, ...summary.map(row => [row.section, row.family, row.plan, row.actual, row.pending, Math.max(0, row.pending), row.plan ? `${(100 * row.actual / row.plan).toFixed(1)}%` : '0%', row.iflt, row.sflt, row.transit, status(row)])]
+    .map(values => values.map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
+  const anchor = document.createElement('a');
+  anchor.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+  anchor.download = 'dispatch_dashboard_export.csv';
+  anchor.click();
+  URL.revokeObjectURL(anchor.href);
+}
+
+$('#fileInput').onchange = event => loadFile(event.target.files[0]);
+const dropZone = $('#dropZone');
+['dragenter', 'dragover'].forEach(type => dropZone.addEventListener(type, event => {
+  event.preventDefault();
+  dropZone.classList.add('dragging');
+}));
+['dragleave', 'drop'].forEach(type => dropZone.addEventListener(type, event => {
+  event.preventDefault();
+  dropZone.classList.remove('dragging');
+}));
+dropZone.addEventListener('drop', event => loadFile(event.dataTransfer.files[0]));
+$$('.nav button').forEach(button => button.onclick = () => {
+  $$('.nav button').forEach(item => item.classList.remove('active'));
+  button.classList.add('active');
+  $$('.tab').forEach(tab => tab.classList.remove('active'));
+  $(`#${button.dataset.tab}`).classList.add('active');
+  $('#pageTitle').textContent = clean(button.textContent);
+  $('#side').classList.remove('open');
+  if (button.dataset.tab === 'executive' && summary.length) renderCharts();
+  if (button.dataset.tab === 'risks' && summary.length) renderRisks();
+});
+['sectionFilter', 'statusFilter', 'sortBy'].forEach(id => $(`#${id}`).onchange = applyFilters);
+$('#modelSearch').oninput = applyFilters;
+$('#clearFilters').onclick = () => {
+  $('#sectionFilter').value = 'ALL';
+  $('#statusFilter').value = 'ALL';
+  $('#modelSearch').value = '';
+  $('#sortBy').value = 'pending';
+  applyFilters();
+};
+$('#sheetSearch').oninput = renderSheetTable;
+$('#rowLimit').onchange = renderSheetTable;
+$('#clearSheetSearch').onclick = () => { $('#sheetSearch').value = ''; renderSheetTable(); };
+$('#menu').onclick = () => $('#side').classList.toggle('open');
+$('#exportBtn').onclick = exportCSV;
+$('#clearSavedBtn').onclick = clearSavedWorkbook;
+window.addEventListener('resize', () => {
+  if (summary.length) {
+    renderCharts();
+    renderRisks();
+  }
+});
+restoreSavedWorkbook();
+
+</script>
+</body></html>
